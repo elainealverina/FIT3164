@@ -1,5 +1,5 @@
 # Main Program file for Cancer Predictive Model
-# By: Group 4
+# By: Group CL_04
 
 # Libraries
 import numpy as np
