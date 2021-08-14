@@ -69,4 +69,4 @@ test_ratio = 0.3
 
 img_train_test_split(root_dir,classes_dir,test_ratio)
 
-# Test git push pull commit
+# Data Augmentation and Normalization
