@@ -18,6 +18,7 @@ from torch.utils.data import Dataset, DataLoader
 
 import splitfolders
 
+
 # Dividing Dataset 70-30
 # ## input_folder: coad_msi_mss
 # def img_train_test_split(input_folder, output_folder):
@@ -62,11 +63,39 @@ def img_train_test_split(root_dir, classes_dir, test_ratio):
             shutil.copy(root_dir + cls + '/' + name, root_dir + 'test/' + cls)
     return None
 
+
 # root_dir: filepath of coad_msi_mss with '/' at the back
 root_dir = ''
 classes_dir = ['MSIMUT_JPEG', 'MSS_JPEG']
 test_ratio = 0.3
 
-img_train_test_split(root_dir,classes_dir,test_ratio)
+img_train_test_split(root_dir, classes_dir, test_ratio)
 
 # Data Augmentation and Normalization
+# batch_size = 128
+learn_rate = 1e-3
+
+data_transformation = transforms.Compose([transforms.RandomHorizontalFlip(), transforms.ToTensor(),
+                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+
+# TODO: Add directory for test and train image in root='/'
+train_image_dataset = datasets.ImageFolder(root='/', transform=data_transformation)
+test_image_dataset = datasets.ImageFolder(root='/', transform=data_transformation)
+
+# Prepare DataLoader
+train_image_dataloader = DataLoader(train_image_dataset, batch_size=128, shuffle=True)
+test_image_dataloader = DataLoader(test_image_dataset, batch_size=128, shuffle=True)
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+# Data Visualization (Display some images)
+images, classes = next(iter(train_image_dataloader))
+plt.figure(figsize=(24, 24))
+grid_images = torchvision.utils.make_grid(images[:4])
+np_grid_images = grid_images.numpy()
+
+# In Tensor, image is (batch, width, height), so you have to transpose it to (width, height, batch) in numpy to show it.
+plt.imshow(np.transpose(np_grid_images, (1, 2, 0)))
+
+# Creating the Model - Load resnet18
+
+# Training Model
