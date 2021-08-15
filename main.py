@@ -65,6 +65,7 @@ def img_train_test_split(root_dir, classes_dir, test_ratio):
 
 
 # root_dir: filepath of coad_msi_mss with '/' at the back
+root_dir = '/Users/vionnietan/Desktop/trial_dataset/'
 # root_dir = '/Users/elainealverina/Desktop/trial_dataset/'
 classes_dir = ['MSIMUT_JPEG', 'MSS_JPEG']
 test_ratio = 0.3
@@ -76,12 +77,11 @@ img_train_test_split(root_dir, classes_dir, test_ratio)
 # batch_size = 128
 learn_rate = 1e-3
 
-data_transformation = transforms.Compose([transforms.RandomHorizontalFlip(), transforms.ToTensor(),
-                                          transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+data_transformation_train = transforms.Compose([transforms.RandomHorizontalFlip(), transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+data_transformation_test = transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-# TODO: Add directory for test and train image in root='/'
-train_image_dataset = datasets.ImageFolder(root_dir, transform=data_transformation)
-test_image_dataset = datasets.ImageFolder(root_dir, transform=data_transformation)
+train_image_dataset = datasets.ImageFolder(root_dir, transform=data_transformation_train)
+test_image_dataset = datasets.ImageFolder(root_dir, transform=data_transformation_test)
 
 # Prepare DataLoader
 train_image_dataloader = DataLoader(train_image_dataset, batch_size=128, shuffle=True)
@@ -89,13 +89,27 @@ test_image_dataloader = DataLoader(test_image_dataset, batch_size=128, shuffle=T
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Data Visualization (Display some images)
-images, classes = next(iter(train_image_dataloader))
-plt.figure(figsize=(24, 24))
-grid_images = torchvision.utils.make_grid(images[:4])
-np_grid_images = grid_images.numpy()
 
-# In Tensor, image is (batch, width, height), so you have to transpose it to (width, height, batch) in numpy to show it.
-plt.imshow(np.transpose(np_grid_images, (1, 2, 0)))
+def show_image(images, title=None):
+    plt.figure(figsize=(8,4))
+    for i, image in enumerate(images):
+        #plt.subplot(1, 2, i + 1, xticks=[], yticks=[])
+        image = image.cpu() if device else image
+        image = image.numpy().transpose((1, 2, 0))
+
+        # Denormalize image
+        mean = np.array([0.485, 0.456, 0.406])
+        std = np.array([0.229, 0.224, 0.225])
+        image = std * image + mean
+        image = np.clip(image, 0, 1)
+        plt.imshow(image)
+
+    plt.show()
+
+
+images, labels = next(iter(train_image_dataloader))
+#out = torchvision.utils.make_grid(images)
+show_image(images)
 
 # Creating the Model - Load resnet18
 
