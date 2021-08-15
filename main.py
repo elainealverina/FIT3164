@@ -65,11 +65,12 @@ def img_train_test_split(root_dir, classes_dir, test_ratio):
 
 
 # root_dir: filepath of coad_msi_mss with '/' at the back
-root_dir = ''
+# root_dir = '/Users/elainealverina/Desktop/trial_dataset/'
 classes_dir = ['MSIMUT_JPEG', 'MSS_JPEG']
 test_ratio = 0.3
 
 img_train_test_split(root_dir, classes_dir, test_ratio)
+
 
 # Data Augmentation and Normalization
 # batch_size = 128
@@ -79,8 +80,8 @@ data_transformation = transforms.Compose([transforms.RandomHorizontalFlip(), tra
                                           transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
 # TODO: Add directory for test and train image in root='/'
-train_image_dataset = datasets.ImageFolder(root='/', transform=data_transformation)
-test_image_dataset = datasets.ImageFolder(root='/', transform=data_transformation)
+train_image_dataset = datasets.ImageFolder(root_dir, transform=data_transformation)
+test_image_dataset = datasets.ImageFolder(root_dir, transform=data_transformation)
 
 # Prepare DataLoader
 train_image_dataloader = DataLoader(train_image_dataset, batch_size=128, shuffle=True)
