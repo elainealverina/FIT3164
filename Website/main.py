@@ -28,7 +28,8 @@ def delete_files():
 
 @app.route("/", methods = ['GET','POST'])
 def home():
-
+    image_list = []
+    #will delete files when user go to main home page
     delete_files()
     session.clear()
 
@@ -63,7 +64,9 @@ def home():
             destination = "/".join([upload_dir,filename])
             file.save(destination)
             session["upload_path"] = [destination]
+            image_list.append(filename)
 
+    session["uploads"] = image_list
     return render_template("index.html")
 
 @app.route("/about/", methods = ['GET', 'POST'])
@@ -79,12 +82,31 @@ def help():
 
 @app.route("/result/", methods = ['GET', 'POST'])
 def result():
+    result_list = []
+    image = session["uploads"]
+    #specify session to delete files later
+    session["upload_path"] = []
+    session["download"] = []
+
+    temp = ""
+    for ele in image:
+        temp += ele
+
+    file_path = "static/upload/"+ temp
+    file_extension = temp.rsplit(".", 1)[1].lower()
+    file_prefix = temp.rsplit(".", 1)[0]
+
+    session["upload_path"].append(file_path)
+
+    new_file_name = file_prefix + ".png"
+    result_list.append([new_file_name])
+
+    #uploaded images by users are in result_list 
     # code of prediction model go here #
     # images uploaded by users are saved under static/upload #
     # read the image inside the folder and run through the prediction model #
     # then display the result in result.html #
-
-    return render_template("result.html")
+    return render_template("result.html",images_name = result_list)
 
 if __name__ == "__main__":
     app.run(debug=True) 

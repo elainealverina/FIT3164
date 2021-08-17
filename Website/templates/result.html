@@ -1,1 +1,13 @@
 <p>This is result page.</p>
+
+<html>
+<body>
+
+      {% for images in images_name %}
+      <tr>
+      <th><img style="display:block;" height="100%" width="100%" src ="{{url_for('static', filename='upload/'+images[0])}}"></th>
+      </tr>
+      {% endfor %}
+    
+</body>
+</html>
