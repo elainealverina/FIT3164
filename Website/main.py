@@ -93,9 +93,11 @@ def result():
         temp += ele
 
     file_path = "static/upload/"+ temp
-    file_extension = temp.rsplit(".", 1)[1].lower()
+    #get the type of image ( png , jpg and etc)
+    file_type = temp.rsplit(".", 1)[1].lower()
+    #the name of the image
     file_prefix = temp.rsplit(".", 1)[0]
-
+    print(file_prefix)
     session["upload_path"].append(file_path)
 
     new_file_name = file_prefix + ".png"
