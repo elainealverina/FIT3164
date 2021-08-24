@@ -103,7 +103,7 @@ def result():
     new_file_name = file_prefix + ".png"
     result_list.append([new_file_name])
 
-    # uploaded images by users are variable named temp 
+    # uploaded image by users are variable named temp 
     # code of prediction model go here #
     # images uploaded by users are saved under static/upload #
     # read the image inside the folder and run through the prediction model #
