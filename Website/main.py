@@ -1,9 +1,9 @@
-from flask import Flask, redirect, url_for, render_template, request, session
+from flask import Flask, redirect, url_for, render_template, request, session, flash
 import os
 #from loadmodel import load_model
 from PIL import Image
-
-
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 # Creating a flask app
 app = Flask(__name__)
 # Specify directory for file upload, file download and file display
@@ -13,9 +13,21 @@ app.secret_key = "2021Group4"
 # Specify the allowed file type to be submitted by the user
 accept_files = {"jpg","jpeg","png"}
 
+db = SQLAlchemy(app)
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(150), unique=True)
+    password = db.Column(db.String(150))
+    first_name = db.Column(db.String(150))
+
+    def __init__(self, first_name, email, password):
+        self.email = email
+        self.password = password
+        self.first_name = first_name
+
+
 def file_checker(file):
     return "." in file and file.rsplit(".", 1)[1].lower() in accept_files
-
 
 def delete_files():
     if 'upload_path' in session:
@@ -71,14 +83,47 @@ def home():
 
 @app.route("/about/", methods = ['GET', 'POST'])
 def about():
-
     return render_template("about.html")
 
 @app.route("/help/", methods = ['GET', 'POST'])
 def help():
-
     return render_template("help.html")
 
+@app.route("/signup/", methods = ['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        firstName = request.form.get('firstName')
+        password1 = request.form.get('password1')
+        password2 = request.form.get('password2')
+
+        if len(email) < 4:
+            flash('Email must be greater than 3 characters.', category='error')
+        elif len(firstName) < 2:
+            flash('First Name must be greater than 1 character', category='error')
+        elif password1 != password2:
+            flash('Password not matched', category='error')
+        elif len(password1) < 7:
+            flash('Password is too short', category='error')
+        else:
+            new_user = User(email=email, first_name=firstName, password=generate_password_hash(password1, method='sha256'))            
+            db.session.add(new_user)
+            db.session.commit()
+            flash("Account created !", category='success')
+
+    return render_template("signup.html")
+
+@app.route("/login/", methods = ['GET', 'POST'])
+def login():
+    return render_template("login.html")
+
+@app.route("/view/")
+def view():
+    return render_template("view.html", values = User.query.all())
+
+@app.route("/logout/", methods = ['GET', 'POST'])
+def logout():
+    return "<p>Logout</p>"
 
 @app.route("/result/", methods = ['GET', 'POST'])
 def result():
@@ -111,4 +156,5 @@ def result():
     return render_template("result.html",images_name = result_list)
 
 if __name__ == "__main__":
+    db.create_all()
     app.run(debug=True) 
