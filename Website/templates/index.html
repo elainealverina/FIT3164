@@ -33,12 +33,16 @@ Licence URI: https://www.os-templates.com/template-terms
     <nav id="mainav" class="fl_right"> 
       <!-- ################################################################################################ -->
       <ul class="clear">
+        {% if user.is_authenticated %}
         <li class="active"><a href="about">About</a></li>
         <li class="active"><a href="help">Help</a></li>
-        <li class="active"><a href="login">Login</a></li>
+        <li class="active"><a href="logout">Logout</a></li>
+        {% else %}
+        <li class="active"><a href="about">About</a></li>
+        <li class="active"><a href="help">Help</a></li>
         <li class="active"><a href="signup">Sign Up</a></li>
-
-
+        <li class="active"><a href="login">Login</a></li>
+        {% endif %}
 
         
       </ul>
@@ -50,25 +54,46 @@ Licence URI: https://www.os-templates.com/template-terms
   <div id="post" class="hoc clear"> 
     <!-- ################################################################################################ -->
     <article>
-      <p>Has patient ever been diagnosed with Cancer ?</p>
-        <ul class="nospace inline pushright">
-          <li><a class="btn inverse" href="#">Yes</a></li>
-          <li><a class="btn inverse" href="#">No</a></li>
-        </ul>
+      <form action="" method = "post" enctype="multipart/form-data">
+        <p>Has patient ever been diagnosed with Cancer ?</p>
+        <div class = "form-group">
+          <input
+          type = "text"
+          style="color: black;"
+          class = "form-control"
+          id = "vCancer"
+          name = "vCancer"
+          placeholder="Enter YES/NO"
+          />
+        </div>
     </article>
+
     <article>
       <p>Is patient currently experiencing any symptoms?</p>
-        <ul class="nospace inline pushright">
-          <li><a class="btn inverse" href="#">Yes</a></li>
-          <li><a class="btn inverse" href="#">No</a></li>
-        </ul>
+      <div class = "form-group";">
+        <input
+        type = "text"
+        style="color: black;"
+        class = "form-control"
+        id = "vSymptoms"
+        name = "vSymptoms"
+        placeholder="Enter YES/NO. If Yes, enter symptoms"
+        />
+      </div>
     </article>
+
     <article>
       <p>Is patient currently undergoing any treatment?</p>
-        <ul class="nospace inline pushright">
-          <li><a class="btn inverse" href="#">Yes</a></li>
-          <li><a class="btn inverse" href="#">No</a></li>
-        </ul>
+      <div class = "form-group">
+        <input
+        type = "text"
+        style="color: black;"
+        class = "form-control"
+        id = "vTreatment"
+        name = "vTreatment"
+        placeholder="Enter YES/NO. If YES, enter treatment"
+        />
+      </div>
     </article>
     <!-- ################################################################################################ -->
   </div>
@@ -76,7 +101,6 @@ Licence URI: https://www.os-templates.com/template-terms
   <div id="pageintro" class="hoc clear"> 
     <!-- ################################################################################################ -->
     <article>
-      <form action="" method = "post" enctype="multipart/form-data">
         <label style="color: black;">Upload Medical Image</label>
         <input style="color: black; font-size: 15px;" type="file" name="file"/>
         <input type="submit" name="submit" value="submit" style="color: black;">

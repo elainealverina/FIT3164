@@ -2,6 +2,8 @@ from flask import Flask, redirect, url_for, render_template, request, session, f
 import os
 #from loadmodel import load_model
 from PIL import Image
+from flask_login import login_manager, login_user, login_required, logout_user, current_user, LoginManager
+from flask_login.mixins import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 # Creating a flask app
@@ -13,18 +15,34 @@ app.secret_key = "2021Group4"
 # Specify the allowed file type to be submitted by the user
 accept_files = {"jpg","jpeg","png"}
 
+
 db = SQLAlchemy(app)
-class User(db.Model):
+
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
+    vCancer = db.Column(db.String(150))
+    vSymptoms = db.Column(db.String(150))
+    vTreatment = db.Column(db.String(150))
 
-    def __init__(self, first_name, email, password):
+
+    def __init__(self, first_name, email, password, vCancer, vSymptoms, vTreatment):
         self.email = email
         self.password = password
         self.first_name = first_name
-
+        self.vCancer = vCancer
+        self.vSymptoms = vSymptoms
+        self.vTreatment = vTreatment
 
 def file_checker(file):
     return "." in file and file.rsplit(".", 1)[1].lower() in accept_files
@@ -38,7 +56,7 @@ def delete_files():
         for path in session['download']:
             os.remove(path)
 
-@app.route("/", methods = ['GET','POST'])
+@app.route("/home", methods = ['GET','POST'])
 def home():
     image_list = []
     #will delete files when user go to main home page
@@ -58,9 +76,13 @@ def home():
     error = None
 
 
-    if request.method == "POST":
+    if request.method == "POST":        
         # when user submit image
         if request.form["submit"] == "submit":
+            vCancer = request.form.get('vCancer')
+            vSymptoms = request.form.get('vSymptoms')
+            vTreatment = request.form.get('vTreatment')
+
             file = request.files["file"]
             filename = file.filename
 
@@ -72,14 +94,20 @@ def home():
                 error = "This file is not accepted"
                 return render_template("index.html", error=error)
 
-            
+            update_user = User.query.filter_by(email= current_user.email).first()
+            update_user.vCancer = vCancer
+            update_user.vSymptoms = vSymptoms
+            update_user.vTreatment = vTreatment
+
+            db.session.commit()
             destination = "/".join([upload_dir,filename])
             file.save(destination)
             session["upload_path"] = [destination]
             image_list.append(filename)
-
+        
+        
     session["uploads"] = image_list
-    return render_template("index.html")
+    return render_template("index.html", user = current_user)
 
 @app.route("/about/", methods = ['GET', 'POST'])
 def about():
@@ -97,7 +125,10 @@ def signup():
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
 
-        if len(email) < 4:
+        user = User.query.filter_by(email = email).first()
+        if user:
+            flash('Email already exists.', category= 'error')
+        elif len(email) < 4:
             flash('Email must be greater than 3 characters.', category='error')
         elif len(firstName) < 2:
             flash('First Name must be greater than 1 character', category='error')
@@ -106,24 +137,43 @@ def signup():
         elif len(password1) < 7:
             flash('Password is too short', category='error')
         else:
-            new_user = User(email=email, first_name=firstName, password=generate_password_hash(password1, method='sha256'))            
+            new_user = User(email=email, first_name=firstName, password=generate_password_hash(password1, method='sha256'), vCancer= "", vSymptoms="",vTreatment="")            
             db.session.add(new_user)
             db.session.commit()
             flash("Account created !", category='success')
+            return redirect(url_for("login"))
 
-    return render_template("signup.html")
+
+    return render_template("signup.html", user = current_user)
 
 @app.route("/login/", methods = ['GET', 'POST'])
 def login():
-    return render_template("login.html")
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        user = User.query.filter_by(email = email).first()
+        if user:
+            if check_password_hash(user.password, password):
+                flash('Logged in successfully!', category = 'success')
+                login_user(user, remember = True)
+                return redirect(url_for("home"))
+            else:
+                flash('Incorrect password.', category= 'error')
+        else:
+            flash('Email does not exist.', category = 'error')
+
+    return render_template("login.html", user = current_user)
 
 @app.route("/view/")
 def view():
     return render_template("view.html", values = User.query.all())
 
 @app.route("/logout/", methods = ['GET', 'POST'])
+@login_required
 def logout():
-    return "<p>Logout</p>"
+    logout_user()
+    return redirect(url_for("login"))
 
 @app.route("/result/", methods = ['GET', 'POST'])
 def result():
@@ -154,6 +204,9 @@ def result():
     # read the image inside the folder and run through the prediction model #
     # then display the result in result.html #
     return render_template("result.html",images_name = result_list)
+
+def goto():
+    return render_template("signup.html")
 
 if __name__ == "__main__":
     db.create_all()

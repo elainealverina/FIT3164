@@ -1,6 +1,7 @@
 {% block title %} View All {% endblock %}
 {% block content %}
     {% for item in values %}
-        <p>Name: {{item.first_name}}, Email: {{item.email}}</p>
+        <p>Name: {{item.first_name}}, Email: {{item.email}}, Cancer: {{item.vCancer}}, Symptoms: {{item.vSymptoms}}, Treatment: {{item.vTreatment}}</p>
     {% endfor %}
  {% endblock %}
+
