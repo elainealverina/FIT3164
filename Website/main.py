@@ -94,12 +94,14 @@ def home():
                 error = "This file is not accepted"
                 return render_template("index.html", error=error)
 
-            update_user = User.query.filter_by(email= current_user.email).first()
-            update_user.vCancer = vCancer
-            update_user.vSymptoms = vSymptoms
-            update_user.vTreatment = vTreatment
+            if current_user.is_authenticated:
+                update_user = User.query.filter_by(email= current_user.email).first()
+                update_user.vCancer = vCancer
+                update_user.vSymptoms = vSymptoms
+                update_user.vTreatment = vTreatment
+                db.session.commit()
 
-            db.session.commit()
+
             destination = "/".join([upload_dir,filename])
             file.save(destination)
             session["upload_path"] = [destination]
