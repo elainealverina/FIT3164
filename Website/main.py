@@ -207,8 +207,6 @@ def result():
     # then display the result in result.html #
     return render_template("result.html",images_name = result_list)
 
-def goto():
-    return render_template("signup.html")
 
 if __name__ == "__main__":
     db.create_all()
