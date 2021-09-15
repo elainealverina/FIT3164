@@ -255,8 +255,9 @@ def result():
     # code of prediction model go here #
     # images uploaded by users are saved under static/upload #
     img_bytes = open(file_path)
-    class_id, class_name = get_prediction(image_bytes=img_bytes)
-    print(class_id, class_name)
+    # class_id, class_name = get_prediction(image_bytes=img_bytes)
+    # print(class_id, class_name)
+    print(predict(img_bytes))
 
     # read the image inside the folder and run through the prediction model #
 
