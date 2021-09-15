@@ -16,6 +16,8 @@ directory = os.path.dirname(os.path.abspath(__file__))
 app.secret_key = "2021Group4"
 # Specify the allowed file type to be submitted by the user
 accept_files = {"jpg","jpeg","png"}
+
+# load model
 model = pickle.load(open('finalized_model.pkl','rb'))
 
 db = SQLAlchemy(app)
