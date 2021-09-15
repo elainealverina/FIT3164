@@ -8,8 +8,45 @@ from flask_login.mixins import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+import torchvision
+
+from torchvision import *
+from torch.utils.data import Dataset, DataLoader
+from torchvision.io import read_image
+from PIL import Image
+
 # Creating a flask app
 app = Flask(__name__)
+
+# load model
+# model = pickle.load(open('finalized_model.pkl','rb'))
+model = torch.load('resnet18.pth')
+model.eval()
+
+imagenet_class_index = ['MSIMUT_JPEG', 'MSS_JPEG']
+
+# Pre-process image
+def transform_image(image_bytes):
+    my_transforms = transforms.Compose([transforms.ToTensor(),
+                                        transforms.Normalize(
+                                            [0.485, 0.456, 0.406],
+                                            [0.229, 0.224, 0.225])])
+    image = Image.open(io.BytesIO(image_bytes))
+    return my_transforms(image).unsqueeze(0)
+
+
+def get_prediction(image_bytes):
+    tensor = transform_image(image_bytes=image_bytes)
+    outputs = model.forward(tensor)
+    _, y_hat = outputs.max(1)
+    predicted_idx = str(y_hat.item())
+    return imagenet_class_index[predicted_idx]
+
+
 # Specify directory for file upload, file download and file display
 directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -17,8 +54,7 @@ app.secret_key = "2021Group4"
 # Specify the allowed file type to be submitted by the user
 accept_files = {"jpg","jpeg","png"}
 
-# load model
-model = pickle.load(open('finalized_model.pkl','rb'))
+
 
 db = SQLAlchemy(app)
 
@@ -208,8 +244,10 @@ def result():
     # code of prediction model go here #
     # images uploaded by users are saved under static/upload #
     # read the image inside the folder and run through the prediction model #
+
     # then display the result in result.html #
     return render_template("result.html",images_name = result_list)
+
 
 
 if __name__ == "__main__":
