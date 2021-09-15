@@ -243,6 +243,10 @@ def result():
     # uploaded image by users are variable named temp 
     # code of prediction model go here #
     # images uploaded by users are saved under static/upload #
+    img_bytes = open(file_path)
+    class_id, class_name = get_prediction(image_bytes=img_bytes)
+    print(class_id, class_name)
+
     # read the image inside the folder and run through the prediction model #
 
     # then display the result in result.html #
