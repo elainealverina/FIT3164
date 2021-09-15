@@ -17,14 +17,16 @@ import torch.optim as optim
 import torch.nn.functional as F
 import torchvision
 
-from torchvision import models
+from torchvision import datasets, transforms, models
 from torchvision.transforms import transforms
-#from torch.utils.data import Dataset, DataLoader
+from torch.autograd import Variable
+from torch.utils.data import Dataset, DataLoader
 #from torchvision.io import read_image
 
 # Creating a flask app
 app = Flask(__name__)
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # load model
 #model = pickle.load(open('finalized_model.pkl','rb'))
 model = torch.load('/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/resnet18.pth')
@@ -34,27 +36,31 @@ imagenet_class_index = ['MSIMUT_JPEG', 'MSS_JPEG']
 
 # Pre-process image
 def transform_image(image_bytes):
-    my_transforms = transforms.Compose([transforms.ToTensor(),
-                                        transforms.Normalize(
-                                            [0.485, 0.456, 0.406],
-                                            [0.229, 0.224, 0.225])])
-    image = Image.open(image_bytes)
-    return my_transforms(image).unsqueeze(0)
+    #my_transforms = transforms.Compose([transforms.ToPILImage(),transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    my_transforms = transforms.Compose([transforms.Resize(255), 
+                                       transforms.CenterCrop(224),  
+                                       transforms.RandomHorizontalFlip(),
+                                       transforms.ToTensor(), 
+                                       transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]) 
+    img_preprocess = my_transforms(image_bytes)
+    #tr_image = my_transforms(image)
+    return torch.unsqueeze(img_preprocess,0)
+
+def show_preds(image):
+    image = transform_image(image)
+    images, labels = next(iter(image))
+    outputs = model(images)
+    _ , preds = torch.max(outputs, 1)
+    return preds, labels
+    #print(labels)
 
 def predict(image):
     image = transform_image(image)
     out = model(image)
     _, index = torch.max(out, 1)
     percentage = torch.nn.functional.softmax(out, dim=1)[0] * 100
+    print(percentage[index[0]].item(), index)
     return percentage[index[0]].item()
-
-
-# def get_prediction(image_bytes):
-#     tensor = transform_image(image_bytes=image_bytes)
-#     outputs = model.forward(tensor)
-#     _, y_hat = outputs.max(1)
-#     predicted_idx = str(y_hat.item())
-#     return imagenet_class_index[predicted_idx]
 
 
 # Specify directory for file upload, file download and file display
@@ -240,21 +246,24 @@ def result():
         temp += ele
 
     #file_path = "static/upload/"+ temp
-    file_path = "/Users/vionnietan/Desktop/trial_dataset/coad_msi_mss/MSIMUT_JPEG/"+ temp
+    #file_path = "/Users/vionnietan/Desktop/trial_dataset/coad_msi_mss/MSIMUT_JPEG/"+ temp
+    file_path = '/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/static/upload/' + temp
+
     #get the type of image ( png , jpg and etc)
     file_type = temp.rsplit(".", 1)[1].lower()
     #the name of the image
     file_prefix = temp.rsplit(".", 1)[0]
     session["upload_path"].append(file_path)
 
-    new_file_name = file_prefix + ".png"
+    new_file_name = file_prefix + ".jpg"
     #put result into result_list, for now is user submitted image
     result_list.append([new_file_name])
 
     # uploaded image by users are variable named temp 
     # code of prediction model go here #
     # images uploaded by users are saved under static/upload #
-    img_bytes = open(file_path)
+    img_bytes = open(file_path,'w')
+
     # class_id, class_name = get_prediction(image_bytes=img_bytes)
     # print(class_id, class_name)
     print(predict(img_bytes))
