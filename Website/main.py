@@ -5,7 +5,13 @@ from PIL import Image
 from flask_login import login_manager, login_user, login_required, logout_user, current_user, LoginManager
 from flask_login.mixins import UserMixin
 from flask_sqlalchemy import SQLAlchemy
+import pickle
 from werkzeug.security import generate_password_hash, check_password_hash
+
+# load model
+# model = pickle.load(open('finalized_model.pkl','rb'))
+
+
 # Creating a flask app
 app = Flask(__name__)
 # Specify directory for file upload, file download and file display
