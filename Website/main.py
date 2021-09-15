@@ -36,14 +36,8 @@ imagenet_class_index = ['MSIMUT_JPEG', 'MSS_JPEG']
 
 # Pre-process image
 def transform_image(image_bytes):
-    #my_transforms = transforms.Compose([transforms.ToPILImage(),transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
-    my_transforms = transforms.Compose([transforms.Resize(255), 
-                                       transforms.CenterCrop(224),  
-                                       transforms.RandomHorizontalFlip(),
-                                       transforms.ToTensor(), 
-                                       transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]) 
+    my_transforms = transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     img_preprocess = my_transforms(image_bytes)
-    #tr_image = my_transforms(image)
     return torch.unsqueeze(img_preprocess,0)
 
 def show_preds(image):
@@ -251,6 +245,7 @@ def result():
 
     #get the type of image ( png , jpg and etc)
     file_type = temp.rsplit(".", 1)[1].lower()
+    
     #the name of the image
     file_prefix = temp.rsplit(".", 1)[0]
     session["upload_path"].append(file_path)
@@ -262,13 +257,10 @@ def result():
     # uploaded image by users are variable named temp 
     # code of prediction model go here #
     # images uploaded by users are saved under static/upload #
-    img_bytes = open(file_path,'w')
-
-    # class_id, class_name = get_prediction(image_bytes=img_bytes)
-    # print(class_id, class_name)
-    print(predict(img_bytes))
 
     # read the image inside the folder and run through the prediction model #
+    image = Image.open(file_path)
+    print(predict(image))
 
     # then display the result in result.html #
     return render_template("result.html",images_name = result_list)
