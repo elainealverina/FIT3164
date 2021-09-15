@@ -23,9 +23,9 @@ from PIL import Image
 app = Flask(__name__)
 
 # load model
-# model = pickle.load(open('finalized_model.pkl','rb'))
-model = torch.load('resnet18.pth')
-model.eval()
+model = pickle.load(open('finalized_model.pkl','rb'))
+# # model = torch.load('resnet18.pth')
+# model.eval()
 
 imagenet_class_index = ['MSIMUT_JPEG', 'MSS_JPEG']
 
