@@ -41,13 +41,20 @@ def transform_image(image_bytes):
     image = Image.open(image_bytes)
     return my_transforms(image).unsqueeze(0)
 
+def predict(image):
+    image = transform_image(image)
+    out = model(image)
+    _, index = torch.max(out, 1)
+    percentage = torch.nn.functional.softmax(out, dim=1)[0] * 100
+    return percentage[index[0]].item()
 
-def get_prediction(image_bytes):
-    tensor = transform_image(image_bytes=image_bytes)
-    outputs = model.forward(tensor)
-    _, y_hat = outputs.max(1)
-    predicted_idx = str(y_hat.item())
-    return imagenet_class_index[predicted_idx]
+
+# def get_prediction(image_bytes):
+#     tensor = transform_image(image_bytes=image_bytes)
+#     outputs = model.forward(tensor)
+#     _, y_hat = outputs.max(1)
+#     predicted_idx = str(y_hat.item())
+#     return imagenet_class_index[predicted_idx]
 
 
 # Specify directory for file upload, file download and file display
