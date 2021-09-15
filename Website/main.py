@@ -1,6 +1,9 @@
-from flask import Flask, redirect, url_for, render_template, request, session, flash
+from flask import Flask, redirect, url_for, render_template, request, session, flash, jsonify, request
 import os
 import pickle
+import io
+import json
+
 #from loadmodel import load_model
 from PIL import Image
 from flask_login import login_manager, login_user, login_required, logout_user, current_user, LoginManager
@@ -14,18 +17,18 @@ import torch.optim as optim
 import torch.nn.functional as F
 import torchvision
 
-from torchvision import *
-from torch.utils.data import Dataset, DataLoader
-from torchvision.io import read_image
-from PIL import Image
+from torchvision import models
+from torchvision.transforms import transforms
+#from torch.utils.data import Dataset, DataLoader
+#from torchvision.io import read_image
 
 # Creating a flask app
 app = Flask(__name__)
 
 # load model
-model = pickle.load(open('finalized_model.pkl','rb'))
-# # model = torch.load('resnet18.pth')
-# model.eval()
+#model = pickle.load(open('finalized_model.pkl','rb'))
+model = torch.load('/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/resnet18.pth')
+model.eval()
 
 imagenet_class_index = ['MSIMUT_JPEG', 'MSS_JPEG']
 
@@ -35,7 +38,7 @@ def transform_image(image_bytes):
                                         transforms.Normalize(
                                             [0.485, 0.456, 0.406],
                                             [0.229, 0.224, 0.225])])
-    image = Image.open(io.BytesIO(image_bytes))
+    image = Image.open(image_bytes)
     return my_transforms(image).unsqueeze(0)
 
 
@@ -229,7 +232,8 @@ def result():
     for ele in image:
         temp += ele
 
-    file_path = "static/upload/"+ temp
+    #file_path = "static/upload/"+ temp
+    file_path = "/Users/vionnietan/Desktop/trial_dataset/coad_msi_mss/MSIMUT_JPEG/"+ temp
     #get the type of image ( png , jpg and etc)
     file_type = temp.rsplit(".", 1)[1].lower()
     #the name of the image
