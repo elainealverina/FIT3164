@@ -1,6 +1,18 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 import os
 import pickle
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+import torchvision
+
+from torchvision import *
+from torch.utils.data import Dataset, DataLoader
+from torchvision.io import read_image
+from PIL import Image
+
 #from loadmodel import load_model
 from PIL import Image
 from flask_login import login_manager, login_user, login_required, logout_user, current_user, LoginManager
@@ -16,6 +28,8 @@ directory = os.path.dirname(os.path.abspath(__file__))
 app.secret_key = "2021Group4"
 # Specify the allowed file type to be submitted by the user
 accept_files = {"jpg","jpeg","png"}
+
+# load model
 model = pickle.load(open('finalized_model.pkl','rb'))
 
 db = SQLAlchemy(app)
