@@ -1,16 +1,12 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 import os
+import pickle
 #from loadmodel import load_model
 from PIL import Image
 from flask_login import login_manager, login_user, login_required, logout_user, current_user, LoginManager
 from flask_login.mixins import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-import pickle
 from werkzeug.security import generate_password_hash, check_password_hash
-
-# load model
-# model = pickle.load(open('finalized_model.pkl','rb'))
-
 
 # Creating a flask app
 app = Flask(__name__)
@@ -20,7 +16,7 @@ directory = os.path.dirname(os.path.abspath(__file__))
 app.secret_key = "2021Group4"
 # Specify the allowed file type to be submitted by the user
 accept_files = {"jpg","jpeg","png"}
-
+model = pickle.load(open('finalized_model.pkl','rb'))
 
 db = SQLAlchemy(app)
 
@@ -200,10 +196,10 @@ def result():
     file_type = temp.rsplit(".", 1)[1].lower()
     #the name of the image
     file_prefix = temp.rsplit(".", 1)[0]
-    print(file_prefix)
     session["upload_path"].append(file_path)
 
     new_file_name = file_prefix + ".png"
+    #put result into result_list, for now is user submitted image
     result_list.append([new_file_name])
 
     # uploaded image by users are variable named temp 
