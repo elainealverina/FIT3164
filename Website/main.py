@@ -28,8 +28,8 @@ app = Flask(__name__)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # load model
-#model = pickle.load(open('finalized_model.pkl','rb'))
-model = torch.load('/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/resnet18.pth')
+model = pickle.load(open('finalized_model.pkl','rb'))
+#model = torch.load('/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/resnet18.pth')
 model.eval()
 
 imagenet_class_index = ['MSIMUT_JPEG', 'MSS_JPEG']
@@ -241,7 +241,9 @@ def result():
 
     #file_path = "static/upload/"+ temp
     #file_path = "/Users/vionnietan/Desktop/trial_dataset/coad_msi_mss/MSIMUT_JPEG/"+ temp
-    file_path = '/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/static/upload/' + temp
+    # file_path = '/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/static/upload/' + temp
+    file_path = '/Users/elainealverina/Desktop/trial_dataset/MSIMUT_JPEG/' + temp
+
 
     #get the type of image ( png , jpg and etc)
     file_type = temp.rsplit(".", 1)[1].lower()
@@ -263,7 +265,7 @@ def result():
     print(predict(image))
 
     # then display the result in result.html #
-    return render_template("result.html",images_name = result_list)
+    return render_template("result.html",images_name = result_list, prediction = predict(image))
 
 
 
