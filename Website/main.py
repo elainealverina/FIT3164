@@ -84,15 +84,18 @@ class User(db.Model, UserMixin):
     vCancer = db.Column(db.String(150))
     vSymptoms = db.Column(db.String(150))
     vTreatment = db.Column(db.String(150))
+    result = db.Column(db.String(150))
 
 
-    def __init__(self, first_name, email, password, vCancer, vSymptoms, vTreatment):
+    def __init__(self, first_name, email, password, vCancer, vSymptoms, vTreatment, result):
         self.email = email
         self.password = password
         self.first_name = first_name
         self.vCancer = vCancer
         self.vSymptoms = vSymptoms
         self.vTreatment = vTreatment
+        self.result = result
+        
 
 def file_checker(file):
     return "." in file and file.rsplit(".", 1)[1].lower() in accept_files
@@ -189,7 +192,7 @@ def signup():
         elif len(password1) < 7:
             flash('Password is too short', category='error')
         else:
-            new_user = User(email=email, first_name=firstName, password=generate_password_hash(password1, method='sha256'), vCancer= "", vSymptoms="",vTreatment="")            
+            new_user = User(email=email, first_name=firstName, password=generate_password_hash(password1, method='sha256'), vCancer= "", vSymptoms="",vTreatment="",result ="")            
             db.session.add(new_user)
             db.session.commit()
             flash("Account created !", category='success')
@@ -239,10 +242,10 @@ def result():
     for ele in image:
         temp += ele
 
-    #file_path = "static/upload/"+ temp
+    file_path = "static/upload/"+ temp
     #file_path = "/Users/vionnietan/Desktop/trial_dataset/coad_msi_mss/MSIMUT_JPEG/"+ temp
     # file_path = '/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/static/upload/' + temp
-    file_path = '/Users/elainealverina/Desktop/trial_dataset/MSIMUT_JPEG/' + temp
+    #file_path = '/Users/elainealverina/Desktop/trial_dataset/MSIMUT_JPEG/' + temp
 
 
     #get the type of image ( png , jpg and etc)
@@ -263,6 +266,13 @@ def result():
     # read the image inside the folder and run through the prediction model #
     image = Image.open(file_path)
     print(predict(image))
+    temp1 = predict(image)
+
+    if current_user.is_authenticated:
+        update_user = User.query.filter_by(email= current_user.email).first()
+        update_user.result = temp1
+        db.session.commit()
+
 
     # then display the result in result.html #
     return render_template("result.html",images_name = result_list, prediction = predict(image))
