@@ -76,6 +76,7 @@ login_manager.init_app(app)
 def load_user(id):
     return User.query.get(int(id))
 
+#Database model for user authentication system
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
@@ -98,9 +99,17 @@ class User(db.Model, UserMixin):
         
 
 def file_checker(file):
+    """
+    Take in a input called file and return T/F to show which file to accept
+    @param file: user submitted file
+    @return: True / False
+    """
     return "." in file and file.rsplit(".", 1)[1].lower() in accept_files
 
 def delete_files():
+    """
+    Delete files that saved during the session
+    """
     if 'upload_path' in session:
         for path in session['upload_path']:
             os.remove(path)   
@@ -111,6 +120,11 @@ def delete_files():
 
 @app.route("/home", methods = ['GET','POST'])
 def home():
+    """
+    Route of homepage, display the homepage to the user and listen to GET and POST
+    Add user submitted image to a file
+    @return: render the homepage HTML
+    """
     image_list = []
     #will delete files when user go to main home page
     delete_files()
@@ -164,16 +178,29 @@ def home():
     session["uploads"] = image_list
     return render_template("index.html", user = current_user)
 
-@app.route("/about/", methods = ['GET', 'POST'])
+@app.route("/about/")
 def about():
+    """
+    Route of about page, display the about page to the user 
+    @return: render the about page HTML
+    """
     return render_template("about.html")
 
-@app.route("/help/", methods = ['GET', 'POST'])
+@app.route("/help/")
 def help():
+    """
+    Route of help page, display the help page to the user 
+    @return: render the help page HTML
+    """
     return render_template("help.html")
 
 @app.route("/signup/", methods = ['GET', 'POST'])
 def signup():
+    """
+    Route of signup, display the signup page to the user and listen to GET and POST
+    Added data submitted by users into database
+    @return: render the signup HTML page
+    """
     if request.method == 'POST':
         email = request.form.get('email')
         firstName = request.form.get('firstName')
@@ -203,6 +230,11 @@ def signup():
 
 @app.route("/login/", methods = ['GET', 'POST'])
 def login():
+    """
+    Route of login, display the login page to the user and listen to GET and POST
+    check user authentication when login
+    @return: render the login HTML page
+    """
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -222,16 +254,30 @@ def login():
 
 @app.route("/view/")
 def view():
+    """
+    Route of view, display the view page to the user
+    display all user authentication details except password
+    @return: render the view HTML page
+    """
     return render_template("view.html", values = User.query.all())
 
 @app.route("/logout/", methods = ['GET', 'POST'])
 @login_required
 def logout():
+    """
+    Route for user to logout 
+    @return: redirect to login HTML page
+    """
     logout_user()
     return redirect(url_for("login"))
 
 @app.route("/result/", methods = ['GET', 'POST'])
 def result():
+    """
+    Route for user to analysis their medical image
+    run predictive model on user submitted image
+    @return: render the result HTML page
+    """
     result_list = []
     image = session["uploads"]
     #specify session to delete files later
