@@ -1,8 +1,6 @@
-from flask import Flask, redirect, url_for, render_template, request, session, flash, jsonify, request
+from flask import Flask, redirect, url_for, render_template, request, session, flash, request
 import os
 import pickle
-import io
-import json
 
 #from loadmodel import load_model
 from PIL import Image
@@ -13,20 +11,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import torchvision
 
-from torchvision import datasets, transforms, models
+from torchvision import transforms
 from torchvision.transforms import transforms
-from torch.autograd import Variable
-from torch.utils.data import Dataset, DataLoader
-#from torchvision.io import read_image
 
 # Creating a flask app
 app = Flask(__name__)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # load model
 model = pickle.load(open('finalized_model.pkl','rb'))
 #model = torch.load('/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/resnet18.pth')
@@ -40,19 +31,11 @@ def transform_image(image_bytes):
     img_preprocess = my_transforms(image_bytes)
     return torch.unsqueeze(img_preprocess,0)
 
-def show_preds(image):
-    image = transform_image(image)
-    images, labels = next(iter(image))
-    outputs = model(images)
-    _ , preds = torch.max(outputs, 1)
-    return preds, labels
-    #print(labels)
-
 def predict(image):
     image = transform_image(image)
     out = model(image)
     _, index = torch.max(out, 1)
-    percentage = torch.nn.functional.softmax(out, dim=1)[0] * 100
+    percentage = nn.functional.softmax(out, dim=1)[0] * 100
     print(percentage[index[0]].item(), index)
     return percentage[index[0]].item()
 
@@ -63,8 +46,6 @@ directory = os.path.dirname(os.path.abspath(__file__))
 app.secret_key = "2021Group4"
 # Specify the allowed file type to be submitted by the user
 accept_files = {"jpg","jpeg","png"}
-
-
 
 db = SQLAlchemy(app)
 
