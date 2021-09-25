@@ -99,7 +99,7 @@ def delete_files():
         for path in session['download']:
             os.remove(path)
 
-@app.route("/home", methods = ['GET','POST'])
+@app.route("/", methods = ['GET','POST'])
 def home():
     """
     Route of homepage, display the homepage to the user and listen to GET and POST
