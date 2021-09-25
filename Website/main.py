@@ -18,6 +18,19 @@ from torchvision.transforms import transforms
 # Creating a flask app
 app = Flask(__name__)
 
+# Database Environment
+ENV = 'dev'
+
+if ENV == 'dev':
+    app.debug = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:123456@localhost/lexus'
+else:
+    app.debug = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://ivfhdyrrndcrfn:3826cbe8f164c64724fdb82e6f82da023dcd09e49e87b8f4abe68fbbb6df01ad@ec2-52-206-193-199.compute-1.amazonaws.com:5432/d7gmviuqv6dfph'
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
 # load model
 model = pickle.load(open('finalized_model.pkl','rb'))
 #model = torch.load('/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/resnet18.pth')
