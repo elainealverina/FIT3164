@@ -206,11 +206,11 @@ def signup():
         elif len(email) < 4:
             flash('Email must be greater than 3 characters.', category='error')
         elif len(firstName) < 2:
-            flash('First Name must be greater than 1 character', category='error')
+            flash('First Name must be greater than 1 character.', category='error')
         elif password1 != password2:
             flash('Password not matched', category='error')
         elif len(password1) < 7:
-            flash('Password is too short', category='error')
+            flash('Password have to be more than 7 characters.', category='error')
         else:
             new_user = User(email=email, first_name=firstName, password=generate_password_hash(password1, method='sha256'), vCancer= "", vSymptoms="",vTreatment="",result ="")            
             db.session.add(new_user)
