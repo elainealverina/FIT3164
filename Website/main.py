@@ -19,7 +19,7 @@ from torchvision.transforms import transforms
 app = Flask(__name__)
 
 # Database Environment
-ENV = ''
+ENV = 'prod'
 
 if ENV == 'dev':
     app.debug = True
@@ -31,8 +31,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
 # load model
-model = pickle.load(open('finalized_model.pkl','rb'))
-#model = torch.load('/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/resnet18.pth')
+#model = pickle.load(open('finalized_model.pkl','rb'))
+model = torch.load('best_model.pth',map_location=torch.device('cpu'))
 model.eval()
 
 imagenet_class_index = ['MSIMUT_JPEG', 'MSS_JPEG']
