@@ -19,7 +19,7 @@ from torchvision.transforms import transforms
 app = Flask(__name__)
 
 # Database Environment
-ENV = 'prod'
+ENV = ''
 
 if ENV == 'dev':
     app.debug = True
