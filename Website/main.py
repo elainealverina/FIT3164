@@ -30,8 +30,7 @@ else:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
-# load model
-#model = pickle.load(open('finalized_model.pkl','rb'))
+# Load model
 model = torch.load('best_model.pth',map_location=torch.device('cpu'))
 model.eval()
 
@@ -282,12 +281,8 @@ def result():
         temp += ele
 
     file_path = "static/upload/"+ temp
-    #file_path = "/Users/vionnietan/Desktop/trial_dataset/coad_msi_mss/MSIMUT_JPEG/"+ temp
-    # file_path = '/Users/vionnietan/Desktop/FIT3163 - FIT3164/FIT3164/FIT3164/Website/static/upload/' + temp
-    #file_path = '/Users/elainealverina/Desktop/trial_dataset/MSIMUT_JPEG/' + temp
 
-
-    #get the type of image ( png , jpg and etc)
+    #get the type of image (png , jpg and etc)
     file_type = temp.rsplit(".", 1)[1].lower()
     
     #the name of the image
@@ -299,7 +294,6 @@ def result():
     result_list.append([new_file_name])
 
     # uploaded image by users are variable named temp 
-    # code of prediction model go here #
     # images uploaded by users are saved under static/upload #
 
     # read the image inside the folder and run through the prediction model #
@@ -312,10 +306,8 @@ def result():
         update_user.result = temp1
         db.session.commit()
 
-
     # then display the result in result.html #
     return render_template("result.html",images_name = result_list, prediction = predict(image))
-
 
 
 if __name__ == "__main__":
