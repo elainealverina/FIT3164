@@ -1,0 +1,21 @@
+
+
+<html>
+<p>This is your submitted SVG Image.</p>
+
+<body>
+      
+      {% for images in images_name %}
+      <tr>
+      <th><img style="display:block;" height="50%" width="50%" src ="{{url_for('static', filename='upload/'+images[0])}}"></th>
+      <p>This is your prediction result.</p>
+
+      <h3> Prediction: {{prediction}}%</h3>
+      </tr>
+      {% endfor %}
+    
+</body>
+</html>
+
+<button type = "button" > <a href="{{ url_for('home') }}">Predict Again</a></button>
+
