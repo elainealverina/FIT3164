@@ -1,22 +1,15 @@
-from flask import Flask, redirect, url_for, render_template, request, session, flash, request
+from flask import Flask, render_template, request, session, request
 import os
-import pickle
 
 #from loadmodel import load_model
 from PIL import Image
-
-
 import torch
 import torch.nn as nn
-
 from torchvision import transforms
 from torchvision.transforms import transforms
 
 # Creating a flask app
 app = Flask(__name__)
-
-
-
 
 # Load model
 model = torch.load('best_model.pth',map_location=torch.device('cpu'))
@@ -38,14 +31,13 @@ def predict(image):
     print(percentage[index[0]].item(), index)
     return percentage[index[0]].item()
 
-
 # Specify directory for file upload, file download and file display
 directory = os.path.dirname(os.path.abspath(__file__))
 
 app.secret_key = "2021Group4"
+
 # Specify the allowed file type to be submitted by the user
 accept_files = {"jpg","jpeg","png"}
-
 
 def file_checker(file):
     """
@@ -91,7 +83,6 @@ def home():
     
     error = None
 
-
     if request.method == "POST":        
         # when user submit image
         if request.form["submit"] == "submit":
@@ -106,7 +97,6 @@ def home():
             if file_checker(filename) == False:
                 error = "This file is not accepted"
                 return render_template("index.html", error=error)
-
 
             destination = "/".join([upload_dir,filename])
             file.save(destination)
@@ -133,7 +123,6 @@ def help():
     """
     return render_template("help.html")
 
-
 @app.route("/view/")
 def view():
     """
@@ -141,8 +130,7 @@ def view():
     display all user authentication details except password
     @return: render the view HTML page
     """
-    return render_template("view.html", values = User.query.all())
-
+    return render_template("view.html")
 
 @app.route("/result/", methods = ['GET', 'POST'])
 def result():
@@ -184,7 +172,6 @@ def result():
 
     # then display the result in result.html #
     return render_template("result.html",images_name = result_list, prediction = predict(image))
-
 
 if __name__ == "__main__":
     app.run(debug=True) 
