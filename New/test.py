@@ -1,33 +1,35 @@
-from flask import Flask, render_template, request, session
-import pickle 
-
-from PIL import Image
+import io
+import string
+import pickle
 import torch
 import torch.nn as nn
-from torchvision import transforms
-from torchvision.transforms import transforms
+import torchvision.transforms as transforms
+from torchvision import models
+from flask import Flask, jsonify, request, render_template
+from PIL import Image
 
 # Creating a flask app
 app = Flask(__name__)
 
 # Load model
-model = pickle.load(open('finalized_model.pkl','rb'))
+#model = pickle.load(open('finalized_model.pkl','rb'))
+model = models.resnet50
+model.load_state_dict(pickle.load(open('finalized_model.pkl','rb')))
 model.eval()
 
 imagenet_class_index = ['MSIMUT', 'MSS']
 
 # Pre-process image
 def transform_image(image_bytes):
-    my_transforms = transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
-    img_preprocess = my_transforms(image_bytes)
-    return torch.unsqueeze(img_preprocess,0)
+    my_transforms = transforms.Compose([transforms.Resize(256),transforms.CenterCrop(224),transforms.ToTensor(),transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    image = Image.open(io.BytesIO(image_bytes))
+    return my_transforms(image).unsqueeze(0)
 
 def predict(image):
-    image = transform_image(image)
-    out = model(image)
+    tensor = transform_image(image)
+    out = model.forward(tensor)
     _, index = torch.max(out, 1)
     percentage = nn.functional.softmax(out, dim=1)[0] * 100
-    print(percentage[index[0]].item(), index)
     return imagenet_class_index[index], percentage[index[0]].item()
 
 error = "Error"
@@ -42,7 +44,6 @@ def home():
 		img_bytes = Image.open(file)
 		prediction_name, percentage = predict(img_bytes)
 		return render_template("result.html",name = prediction_name, prediction = percentage)
-    
 	return render_template('test.html')
 
 @app.route("/about/")
