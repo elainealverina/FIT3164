@@ -29,7 +29,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 model = torch.load('best_model.pth',map_location=torch.device('cpu'))
 model.eval()
 
-imagenet_class_index = ['MSIMUT_JPEG', 'MSS_JPEG']
+imagenet_class_index = ['MSIMUT', 'MSS']
 
 # Pre-process image
 def transform_image(image_bytes):
@@ -268,7 +268,7 @@ def result():
     for ele in image:
         temp += ele
 
-    file_path = "static/upload/"+ temp
+    file_path = "C:/Users/jones/Desktop/FIT3164/Website/static/upload/"+ temp
 
     #get the type of image (png , jpg and etc)
     file_type = temp.rsplit(".", 1)[1].lower()
@@ -294,7 +294,7 @@ def result():
         db.session.commit()
 
     # then display the result in result.html #
-    return render_template("result.html",name = prediction_name, prediction = percentage)
+    return render_template("result.html",images_name = result_list, name = prediction_name, prediction = percentage)
 
 
 if __name__ == "__main__":
