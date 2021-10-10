@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, session, request
 import os
-
+import pickle 
 #from loadmodel import load_model
 from PIL import Image
 import torch
@@ -12,7 +12,7 @@ from torchvision.transforms import transforms
 app = Flask(__name__)
 
 # Load model
-model = torch.load('best_model.pth',map_location=torch.device('cpu'))
+model = pickle.load(open('finalized_model.pkl','rb'))
 model.eval()
 
 imagenet_class_index = ['MSIMUT_JPEG', 'MSS_JPEG']
