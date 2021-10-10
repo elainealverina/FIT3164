@@ -268,7 +268,7 @@ def result():
     for ele in image:
         temp += ele
 
-    file_path = "C:/Users/jones/Desktop/FIT3164/Website/static/upload/"+ temp
+    file_path = "/static/upload/"+ temp
 
     #get the type of image (png , jpg and etc)
     file_type = temp.rsplit(".", 1)[1].lower()
