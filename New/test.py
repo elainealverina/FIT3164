@@ -12,9 +12,7 @@ from PIL import Image
 app = Flask(__name__)
 
 # Load model
-#model = pickle.load(open('finalized_model.pkl','rb'))
-model = models.resnet50
-model.load_state_dict(pickle.load(open('finalized_model.pkl','rb')))
+model = pickle.load(open('finalized_model.pkl','rb'))
 model.eval()
 
 imagenet_class_index = ['MSIMUT', 'MSS']
@@ -22,8 +20,8 @@ imagenet_class_index = ['MSIMUT', 'MSS']
 # Pre-process image
 def transform_image(image_bytes):
     my_transforms = transforms.Compose([transforms.Resize(256),transforms.CenterCrop(224),transforms.ToTensor(),transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
-    image = Image.open(io.BytesIO(image_bytes))
-    return my_transforms(image).unsqueeze(0)
+    img_preprocess = my_transforms(image_bytes)
+    return torch.unsqueeze(img_preprocess,0)
 
 def predict(image):
     tensor = transform_image(image)

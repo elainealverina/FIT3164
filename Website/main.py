@@ -1,8 +1,5 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash, request
 import os
-import pickle
-
-#from loadmodel import load_model
 from PIL import Image
 from flask_login import login_manager, login_user, login_required, logout_user, current_user, LoginManager
 from flask_login.mixins import UserMixin
@@ -11,7 +8,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 import torch
 import torch.nn as nn
-
 from torchvision import transforms
 from torchvision.transforms import transforms
 
@@ -28,7 +24,6 @@ else:
     app.debug = False
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ivfhdyrrndcrfn:3826cbe8f164c64724fdb82e6f82da023dcd09e49e87b8f4abe68fbbb6df01ad@ec2-52-206-193-199.compute-1.amazonaws.com:5432/d7gmviuqv6dfph'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 
 # Load model
 model = torch.load('best_model.pth',map_location=torch.device('cpu'))
@@ -47,9 +42,7 @@ def predict(image):
     out = model(image)
     _, index = torch.max(out, 1)
     percentage = nn.functional.softmax(out, dim=1)[0] * 100
-    print(percentage[index[0]].item(), index)
-    return percentage[index[0]].item()
-
+    return imagenet_class_index[index], percentage[index[0]].item()
 
 # Specify directory for file upload, file download and file display
 directory = os.path.dirname(os.path.abspath(__file__))
@@ -79,7 +72,6 @@ class User(db.Model, UserMixin):
     vTreatment = db.Column(db.String(150))
     result = db.Column(db.String(150))
 
-
     def __init__(self, first_name, email, password, vCancer, vSymptoms, vTreatment, result):
         self.email = email
         self.password = password
@@ -89,7 +81,6 @@ class User(db.Model, UserMixin):
         self.vTreatment = vTreatment
         self.result = result
         
-
 def file_checker(file):
     """
     Take in a input called file and return T/F to show which file to accept
@@ -134,7 +125,6 @@ def home():
     
     error = None
 
-
     if request.method == "POST":        
         # when user submit image
         if request.form["submit"] == "submit":
@@ -165,7 +155,6 @@ def home():
             file.save(destination)
             session["upload_path"] = [destination]
             image_list.append(filename)
-        
         
     session["uploads"] = image_list
     return render_template("index.html", user = current_user)
@@ -216,7 +205,6 @@ def signup():
             db.session.commit()
             flash("Account created !", category='success')
             return redirect(url_for("login"))
-
 
     return render_template("signup.html", user = current_user)
 
@@ -298,16 +286,15 @@ def result():
 
     # read the image inside the folder and run through the prediction model #
     image = Image.open(file_path)
-    print(predict(image))
-    temp1 = predict(image)
+    prediction_name, percentage = predict(image)
 
     if current_user.is_authenticated:
         update_user = User.query.filter_by(email= current_user.email).first()
-        update_user.result = temp1
+        update_user.result = percentage
         db.session.commit()
 
     # then display the result in result.html #
-    return render_template("result.html",images_name = result_list, prediction = predict(image))
+    return render_template("result.html",name = prediction_name, prediction = percentage)
 
 
 if __name__ == "__main__":
