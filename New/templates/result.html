@@ -7,7 +7,6 @@
       
       {% for images in images_name %}
       <tr>
-      <th><img style="display:block;" height="50%" width="50%" src ="{{url_for('static', filename='upload/'+images[0])}}"></th>
       <p>This is your prediction result.</p>
 
       <h3> Prediction: {{prediction}}%</h3>
