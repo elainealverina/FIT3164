@@ -110,8 +110,8 @@ def home():
     """
     image_list = []
     #will delete files when user go to main home page
-    delete_files()
-    session.clear()
+    #delete_files()
+    #session.clear()
 
     # Create folder for file upload
     upload_dir = os.path.join(directory, 'static/upload/')
