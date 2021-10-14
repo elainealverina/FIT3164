@@ -150,7 +150,6 @@ def home():
                 update_user.vTreatment = vTreatment
                 db.session.commit()
 
-
             destination = "/".join([upload_dir,filename])
             file.save(destination)
             session["upload_path"] = [destination]
@@ -299,4 +298,5 @@ def result():
 
 if __name__ == "__main__":
     db.create_all()
+    print("DATABASE CREATED")
     app.run(debug=True) 
