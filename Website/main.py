@@ -1,15 +1,16 @@
-from flask import Flask, redirect, url_for, render_template, request, session, flash, request
 import os
-from PIL import Image
+
+import torch
+import torch.nn as nn
+from torchvision import transforms, models
+from torchvision.transforms import transforms
+
+from flask import Flask, redirect, url_for, render_template, request, session, flash, request
 from flask_login import login_manager, login_user, login_required, logout_user, current_user, LoginManager
 from flask_login.mixins import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-
-import torch
-import torch.nn as nn
-from torchvision import transforms
-from torchvision.transforms import transforms
+from PIL import Image
 
 # Creating a flask app
 app = Flask(__name__)
@@ -48,6 +49,7 @@ def predict(image):
 directory = os.path.dirname(os.path.abspath(__file__))
 
 app.secret_key = "2021Group4"
+
 # Specify the allowed file type to be submitted by the user
 accept_files = {"jpg","jpeg","png"}
 
