@@ -1,15 +1,20 @@
 import io
+import os
 import string
 
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision import models
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, flash, request, redirect, url_for, render_template
 from PIL import Image
+from werkzeug.utils import secure_filename
 
 # Creating a flask app
 app = Flask(__name__)
+UPLOAD_FOLDER = 'static/uploads/'
+app.secret_key = "secret key"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Load model
 model = models.resnet50()
@@ -21,7 +26,7 @@ model.fc = nn.Sequential(
     nn.Linear(256, 10),
     nn.LogSoftmax(dim=1)
 )
-model.load_state_dict(torch.load('model.pth',map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('C:/Users/jones/Desktop/FIT3164/New/model.pth',map_location=torch.device('cpu')))
 model.eval()
 
 imagenet_class_index = ['MSIMUT', 'MSS']
@@ -50,16 +55,18 @@ def predict(image_bytes):
 error = "Error"
 @app.route('/', methods=['GET', 'POST'])
 def home():
-	if request.method == 'POST':
-		if 'file' not in request.files:
-			return render_template("index.html", error=error)
-		file = request.files.get('file')
-		if not file:
-			return
-		img_bytes = file.read()
-		prediction_name, percentage = predict(img_bytes)
-		return render_template("result.html",name = prediction_name, prediction = percentage)
-	return render_template('test.html')
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return render_template("index.html", error=error)
+        file = request.files.get('file')
+        if not file:
+            return
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        img_bytes = file.read()
+        prediction_name, percentage = predict(img_bytes)
+        return render_template("result.html",filename=filename, name = prediction_name, prediction = percentage)
+    return render_template('test.html')
 
 @app.route("/about/")
 def about():
@@ -77,6 +84,10 @@ def help():
     """
     return render_template("help.html")
 
-if __name__ == "__main__":
-    app.run(debug=True) 
+@app.route('/display/<filename>')
+def display_image(filename):
+    #print('display_image filename: ' + filename)
+    return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
+if __name__ == "__main__":
+    app.run(debug=True)

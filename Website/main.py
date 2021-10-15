@@ -16,7 +16,9 @@ from werkzeug.utils import secure_filename
 
 # Creating a flask app
 app = Flask(__name__)
-
+UPLOAD_FOLDER = 'static/uploads/'
+app.secret_key = "secret key"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Database Environment
 ENV = 'prod'
 
@@ -129,6 +131,10 @@ def home():
             if not file:
                 return
 
+            # Display Image
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
             #run the predictive model with the submitted image
             img_bytes = file.read()
             prediction_name, percentage = predict(img_bytes)
@@ -139,7 +145,7 @@ def home():
                 update_user.result = percentage
                 db.session.commit()
 
-        return render_template("result.html",name= prediction_name, prediction = percentage)
+        return render_template("result.html",filename=filename, name= prediction_name, prediction = percentage)
     return render_template("index.html", user = current_user)
 
 @app.route("/about/")
@@ -233,6 +239,10 @@ def logout():
     """
     logout_user()
     return redirect(url_for("login"))
+
+@app.route('/display/<filename>')
+def display_image(filename):
+    return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
 if __name__ == "__main__":
     db.create_all()

@@ -1,6 +1,10 @@
 <html>
 <body>
       <tr>
+      <p>This is your submitted image</p>
+      <div>
+            <img src="{{ url_for('display_image', filename=filename) }}">
+      </div>
       <p>This is your prediction result.</p>
       <h3> Prediction: {{name}} {{prediction}}%</h3>
       </tr> 
