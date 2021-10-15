@@ -16,9 +16,7 @@ from werkzeug.utils import secure_filename
 
 # Creating a flask app
 app = Flask(__name__)
-UPLOAD_FOLDER = 'static/upload/'
-app.secret_key = "secret key"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 # Database Environment
 ENV = 'prod'
 
@@ -141,10 +139,7 @@ def home():
                 update_user.result = percentage
                 db.session.commit()
 
-            # Display Image
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return render_template("result.html",filename=filename, name= prediction_name, prediction = percentage)
+        return render_template("result.html", name= prediction_name, prediction = percentage)
     return render_template("index.html", user = current_user)
 
 @app.route("/about/")
