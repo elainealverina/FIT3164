@@ -37,7 +37,7 @@ model.fc = nn.Sequential(
     nn.Linear(256, 10),
     nn.LogSoftmax(dim=1)
 )
-model.load_state_dict(torch.load('C:/Users/jones/Desktop/FIT3164/Website/model.pth',map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('model.pth',map_location=torch.device('cpu')))
 model.eval()
 
 imagenet_class_index = ['MSIMUT', 'MSS']
