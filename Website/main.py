@@ -12,6 +12,7 @@ from flask_login.mixins import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import Image
+from werkzeug.utils import secure_filename
 
 # Creating a flask app
 app = Flask(__name__)
@@ -61,13 +62,7 @@ def predict(image_bytes):
     percentage = nn.functional.softmax(out, dim=1)[0] * 100
     return imagenet_class_index[index], percentage[index[0]].item()
 
-# Specify directory for file upload, file download and file display
-directory = os.path.dirname(os.path.abspath(__file__))
-
 app.secret_key = "2021Group4"
-
-# Specify the allowed file type to be submitted by the user
-accept_files = {"jpg","jpeg","png"}
 
 db = SQLAlchemy(app)
 
@@ -99,48 +94,13 @@ class User(db.Model, UserMixin):
         self.vTreatment = vTreatment
         self.result = result
         
-def file_checker(file):
-    """
-    Take in a input called file and return T/F to show which file to accept
-    @param file: user submitted file
-    @return: True / False
-    """
-    return "." in file and file.rsplit(".", 1)[1].lower() in accept_files
-
-def delete_files():
-    """
-    Delete files that saved during the session
-    """
-    if 'upload_path' in session:
-        for path in session['upload_path']:
-            os.remove(path)   
-        
-    if 'download' in session:
-        for path in session['download']:
-            os.remove(path)
 
 @app.route("/", methods = ['GET','POST'])
 def home():
     """
-    Route of homepage, display the homepage to the user and listen to GET and POST
-    Add user submitted image to a file
-    @return: render the homepage HTML
+    Route of homepage, display the homepage to the user and listen to GET and POST, after user submitted image, run through the predictive model
+    @return: render the homepage HTML, if user submitted image, render the result html with the prediction result
     """
-    image_list = []
-    #will delete files when user go to main home page
-    #delete_files()
-    #session.clear()
-
-    # Create folder for file upload
-    upload_dir = os.path.join(directory, 'static/upload/')
-    if not os.path.isdir(upload_dir):
-        os.mkdir(upload_dir)
-    
-    # Create folder for file download
-    download_dir = os.path.join(directory, 'static/download/')
-    if not os.path.isdir(download_dir):
-        os.mkdir(download_dir)
-    
     error = None
 
     if request.method == "POST":        
@@ -157,22 +117,29 @@ def home():
                 update_user.vTreatment = vTreatment
                 db.session.commit()
 
+            #check if the post request has the file 
             if 'file' not in request.files:
-                return render_template("index.html", error=error)
+                return render_template("index.html", error = error)
             file = request.files.get('file')
+            
+            #if wheter the submitted image are in jpg, jpeg and png format
+            if ("." in file.filename and file.filename.rsplit(".", 1)[1].lower()) not in ["jpg","jpeg","png"]:
+                return render_template("error.html")
+
             if not file:
                 return
+
+            #run the predictive model with the submitted image
             img_bytes = file.read()
             prediction_name, percentage = predict(img_bytes)
-            
+
+            #add users responses to the database
             if current_user.is_authenticated:
                 update_user = User.query.filter_by(email= current_user.email).first()
                 update_user.result = percentage
                 db.session.commit()
 
-            image_list.append(file)
-
-            return render_template("result.html", name = prediction_name, prediction = percentage)
+        return render_template("result.html",name= prediction_name, prediction = percentage)
     return render_template("index.html", user = current_user)
 
 @app.route("/about/")
@@ -267,53 +234,6 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
-@app.route("/result/", methods = ['GET', 'POST'])
-def result():
-    """
-    Route for user to analysis their medical image
-    run predictive model on user submitted image
-    @return: render the result HTML page
-    """
-    result_list = []
-    image = session["uploads"]
-    #specify session to delete files later
-    session["upload_path"] = []
-    session["download"] = []
-
-    temp = ""
-    for ele in image:
-        temp += ele
-
-    file_path = "static/upload/"+ temp
-
-    #get the type of image (png , jpg and etc)
-    file_type = temp.rsplit(".", 1)[1].lower()
-    
-    #the name of the image
-    file_prefix = temp.rsplit(".", 1)[0]
-    session["upload_path"].append(file_path)
-
-    new_file_name = file_prefix + ".jpg"
-    #put result into result_list, for now is user submitted image
-    result_list.append([new_file_name])
-
-    # uploaded image by users are variable named temp 
-    # images uploaded by users are saved under static/upload #
-
-    # read the image inside the folder and run through the prediction model #
-    image = Image.open(file_path)
-    prediction_name, percentage = predict(image)
-
-    if current_user.is_authenticated:
-        update_user = User.query.filter_by(email= current_user.email).first()
-        update_user.result = percentage
-        db.session.commit()
-
-    # then display the result in result.html #
-    return render_template("result.html",images_name = result_list, name = prediction_name, prediction = percentage)
-
-
 if __name__ == "__main__":
     db.create_all()
-    print("DATABASE CREATED")
     app.run(debug=True) 
