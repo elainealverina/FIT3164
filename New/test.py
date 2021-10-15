@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 
 # Creating a flask app
 app = Flask(__name__)
-UPLOAD_FOLDER = 'static/uploads/'
+UPLOAD_FOLDER = 'C:/Users/jones/Desktop/FIT3164/New/static/upload/'
 app.secret_key = "secret key"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -61,11 +61,13 @@ def home():
         file = request.files.get('file')
         if not file:
             return
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
         img_bytes = file.read()
         prediction_name, percentage = predict(img_bytes)
-        return render_template("result.html",filename=filename, name = prediction_name, prediction = percentage)
+
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return render_template("result.html",filename=filename)
     return render_template('test.html')
 
 @app.route("/about/")
@@ -87,7 +89,7 @@ def help():
 @app.route('/display/<filename>')
 def display_image(filename):
     #print('display_image filename: ' + filename)
-    return redirect(url_for('static', filename='uploads/' + filename), code=301)
+    return redirect(url_for('static', filename='upload/' + filename), code=301)
 
 if __name__ == "__main__":
     app.run(debug=True)
