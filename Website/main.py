@@ -129,9 +129,13 @@ def home():
             if not file:
                 return
             
+            try:
             #run the predictive model with the submitted image
-            img_bytes = file.read()
-            prediction_name, percentage = predict(img_bytes)
+                img_bytes = file.read()
+                prediction_name, percentage = predict(img_bytes)
+
+            except:
+                return render_template("error_file.html")
 
             #add users responses to the database
             if current_user.is_authenticated:
