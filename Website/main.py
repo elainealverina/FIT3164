@@ -99,6 +99,8 @@ class User(db.Model, UserMixin):
 def home():
     """
     Route of homepage, display the homepage to the user and listen to GET and POST, after user submitted image, run through the predictive model
+    @special condition: sometimes will produce result if the submitted images are unrelevant
+    @expected output: output the result of predictive model
     @return: render the homepage HTML, if user submitted image, render the result html with the prediction result
     """
     error = None
@@ -167,6 +169,7 @@ def signup():
     """
     Route of signup, display the signup page to the user and listen to GET and POST
     Added data submitted by users into database
+    @expected output: users data are saved in the database
     @return: render the signup HTML page
     """
     if request.method == 'POST':
