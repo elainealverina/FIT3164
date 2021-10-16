@@ -1,3 +1,4 @@
+# Import Libraries
 import os
 import io
 
@@ -17,6 +18,7 @@ from werkzeug.utils import secure_filename
 # Creating a flask app
 app = Flask(__name__)
 
+# SOURCE: https://github.com/python-engineer/pytorch-examples & https://www.youtube.com/watch?v=bA7-DEtYCNM
 # Database Environment
 ENV = 'prod'
 
@@ -28,6 +30,7 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ivfhdyrrndcrfn:3826cbe8f164c64724fdb82e6f82da023dcd09e49e87b8f4abe68fbbb6df01ad@ec2-52-206-193-199.compute-1.amazonaws.com:5432/d7gmviuqv6dfph'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# SOURCE: https://towardsdatascience.com/build-a-web-application-for-predicting-apple-leaf-diseases-using-pytorch-and-flask-413f9fa9276a
 # Load model
 model = models.resnet50()
 num_inftr = model.fc.in_features
@@ -43,6 +46,7 @@ model.eval()
 
 imagenet_class_index = ['MSIMUT', 'MSS']
 
+# SOURCE: https://towardsdatascience.com/build-a-web-application-for-predicting-apple-leaf-diseases-using-pytorch-and-flask-413f9fa9276a
 # Pre-process image
 def transform_image(image_bytes):
     my_transforms = transforms.Compose([
@@ -74,7 +78,7 @@ login_manager.init_app(app)
 def load_user(id):
     return User.query.get(int(id))
 
-#Database model for user authentication system
+# Database model for user authentication system
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
@@ -94,7 +98,6 @@ class User(db.Model, UserMixin):
         self.vTreatment = vTreatment
         self.result = result
         
-
 @app.route("/", methods = ['GET','POST'])
 def home():
     """
