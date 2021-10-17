@@ -49,6 +49,15 @@ imagenet_class_index = ['MSIMUT', 'MSS']
 # SOURCE: https://towardsdatascience.com/build-a-web-application-for-predicting-apple-leaf-diseases-using-pytorch-and-flask-413f9fa9276a
 # Pre-process image
 def transform_image(image_bytes):
+    """
+    This function performs image transformations on an image
+    :param image_bytes: an image
+    :return: image_bytes that has been transformed as the following:
+            1. resized to size 256
+            2. cropped at the center with size 224
+            3. converted into tensor format
+            4. normalized with mean and standard deviation
+    """
     my_transforms = transforms.Compose([
 		transforms.Resize(256),
 		transforms.CenterCrop(224),
