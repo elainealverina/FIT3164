@@ -69,6 +69,11 @@ def transform_image(image_bytes):
     return my_transforms(image).unsqueeze(0)
 
 def predict(image_bytes):
+    """
+    This function predicts whether an image is classified as MSS/MSIMUT 
+    :param image_bytes: an image
+    :return: the prediction class (MSS/MSIMUT), the confidence of having that prediction class
+    """
     tensor = transform_image(image_bytes=image_bytes)
     out = model.forward(tensor)
     _, index = torch.max(out, 1)
