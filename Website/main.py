@@ -239,14 +239,6 @@ def login():
 
     return render_template("login.html", user = current_user)
 
-@app.route("/view/")
-def view():
-    """
-    Route of view, display the view page to the user
-    display all user authentication details except password
-    @return: render the view HTML page
-    """
-    return render_template("view.html", values = User.query.all())
 
 @app.route("/logout/", methods = ['GET', 'POST'])
 @login_required
