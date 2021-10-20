@@ -238,8 +238,12 @@ def login():
             flash('Email does not exist.', category = 'error')
 
     return render_template("login.html", user = current_user)
-
-
+    
+#For testing Purpose
+@app.route("/view/")
+def view():
+    return render_template("view.html", values = User.query.all())
+    
 @app.route("/logout/", methods = ['GET', 'POST'])
 @login_required
 def logout():
