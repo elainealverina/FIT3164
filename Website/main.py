@@ -137,8 +137,8 @@ def home():
                 db.session.commit()
 
             #check if the post request has the file 
-            if 'file' not in request.files:
-                return render_template("index.html", error = error)
+            if not request.files.get('file',None):
+                return render_template("error_empty.html")
             file = request.files.get('file')
             
             #if wheter the submitted image are in jpg, jpeg and png format
